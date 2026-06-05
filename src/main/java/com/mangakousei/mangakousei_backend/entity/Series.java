@@ -1,5 +1,6 @@
 package com.mangakousei.mangakousei_backend.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,8 +11,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -78,6 +82,18 @@ public class Series{
     @JoinColumn(name = "publication_type_id", nullable = false)
     @ToString.Exclude
     private PublicationType publicationType;
+
+    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("publicationDecisions")
+    @Builder.Default
+    @ToString.Exclude
+    private List<PublicationDecision> decisions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("seriesVoting")
+    @Builder.Default
+    @ToString.Exclude
+    private List<ReaderVote> votes = new ArrayList<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

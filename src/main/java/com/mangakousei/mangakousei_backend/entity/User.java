@@ -2,7 +2,7 @@ package com.mangakousei.mangakousei_backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import jakarta.persistence.FetchType;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,19 +47,31 @@ public class User {
     )
         @Getter
         private List<Role> roles;
+    
     @OneToMany(mappedBy = "user")
     @JsonManagedReference("notifications")
         @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
+    
     @OneToMany(mappedBy = "creator")
     @JsonManagedReference("createdSeries")
         @Builder.Default
     private List<Series> createdSeries = new ArrayList<>();
+    
     @OneToMany(mappedBy = "editor")
     @JsonManagedReference("editedSeries")
         @Builder.Default
     private List<Series> editedSeries = new ArrayList<>();
 
+    @OneToMany(mappedBy = "decider", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("decidedSeries")
+        @Builder.Default
+    private List<PublicationDecision> madeDecision = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "importer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("importedVoteBatches")
+        @Builder.Default
+    private List<ReaderVoteBatches> importVoteBatches = new ArrayList<>();
     
     @PrePersist
     protected void onCreate() {

@@ -17,8 +17,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Entity
-@Table(name = "notification")
-@Getter
+@Table(name = "notifications")
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString

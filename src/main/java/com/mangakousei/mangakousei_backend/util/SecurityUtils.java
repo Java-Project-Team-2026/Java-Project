@@ -12,7 +12,7 @@ public class SecurityUtils {
     public static Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            throw new CustomAppException("User not authenticated", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomAppException("User not authenticated", HttpStatus.UNAUTHORIZED);
         }
         
         Object principal = auth.getPrincipal();
@@ -20,11 +20,15 @@ public class SecurityUtils {
             return ((CustomUserDetails) principal).getId();
         }
         
-        throw new CustomAppException("Cannot extract user ID", HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new CustomAppException("Cannot extract user ID", HttpStatus.UNAUTHORIZED);
     }
     
     public static boolean isAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return false;
+        }
+
         return auth.getAuthorities().stream()
             .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
     }

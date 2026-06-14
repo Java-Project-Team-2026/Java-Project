@@ -54,18 +54,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            if (!tokenProvider.validateToken(refreshToken)) {
-                request.setAttribute("auth_error", "NO_TOKEN");
-
-                Cookie accessCookie = new Cookie("accessToken", null);
-                accessCookie.setMaxAge(0);
-                accessCookie.setPath("/");
-                response.addCookie(accessCookie);
-
-                filterChain.doFilter(request, response);
-                return;
-            }
-
             if (tokenProvider.validateToken(token)) {
                 String email = tokenProvider.getEmailFromToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -76,6 +64,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                if (refreshToken != null && tokenProvider.validateToken(refreshToken)) {
+                    request.setAttribute("auth_error", "TOKEN_EXPIRED");
+                } else {
+                    request.setAttribute("auth_error", "TOKEN_INVALID");
+                }
+
+                Cookie accessCookie = new Cookie("accessToken", null);
+                accessCookie.setMaxAge(0);
+                accessCookie.setPath("/");
+                response.addCookie(accessCookie);
             }
         } catch (Exception e) {
             log.error("Cannot set user authentication: {}", e.getMessage());

@@ -75,10 +75,10 @@ public class SeriesProposalService {
         return new ProposalRes(saved.getProposalId(), saved.getStatus());
     }
 
-    public List<ProposalListRes> getProposals(String status, String search) {
-        List<Object[]> rows = proposalRepository.findProposalsRaw(status, search);
+    public List<ProposalListRes> getProposals(Long tantouId, String status, String search) {
+        List<Object[]> rows = proposalRepository.findProposalsRaw(tantouId, status, search);
         List<ProposalListRes> result = new ArrayList<>();
-
+    
         for (Object[] row : rows) {
             ProposalListRes dto = new ProposalListRes();
             dto.setProposalId(((Number) row[0]).longValue());
@@ -91,16 +91,16 @@ public class SeriesProposalService {
             dto.setRejectionReason((String) row[7]);
             dto.setRevisionFeedback((String) row[8]);
             dto.setSketchImageUrl((String) row[9]);
-
+    
             ProposalListRes.MangakaInfo mangaka = new ProposalListRes.MangakaInfo();
             mangaka.setUserId(((Number) row[10]).longValue());
             mangaka.setFullName((String) row[11]);
             mangaka.setAvatarUrl((String) row[12]);
             dto.setMangaka(mangaka);
-
+    
             dto.setGenres(parseGenreList((String) row[13]));
             dto.setCharacters(parseCharacterList((String) row[14]));
-
+    
             result.add(dto);
         }
         return result;

@@ -45,13 +45,9 @@ public class SecurityConfig {
                             String authError = (String) request.getAttribute("auth_error");
                             Map<String, Object> errorResponse = new HashMap<>();
 
-                            if ("TOKEN_EXPIRED".equals(authError)) {
-                                errorResponse.put("error", "TOKEN_EXPIRED");
-                                errorResponse.put("message", "Access token expired");
-                                errorResponse.put("shouldRefresh", true);
-                            } else {
-                                errorResponse.put("error", authError != null ? authError : "UNAUTHORIZED");
-                                errorResponse.put("message", "Unauthorized");
+                            if (authError.equals("NO_TOKEN")) {
+                                errorResponse.put("error", "NO_TOKEN");
+                                errorResponse.put("message", "Access token and refresh token invalid");
                                 errorResponse.put("shouldRefresh", false);
                             }
 
@@ -65,6 +61,8 @@ public class SecurityConfig {
                                 "/api/auth/refresh",
                                 "/api/auth/logout",
                                 "/api/genres",
+                                "/api/proposals",
+                                "/api/tantou/**",
                                 "/api/public/**"
                         ).permitAll()
                         .anyRequest().authenticated()

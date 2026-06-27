@@ -32,6 +32,7 @@ public class ChapterService {
     private final ChapterPageDeadlineRepository deadlineRepository;
     private final UserRepository userRepository;
     private final ActivityLogService activityLogService;
+    private final NotificationService notificationService;
 
     public List<ChapterRes> getChaptersBySeries(Long seriesId) {
         return chapterRepository
@@ -288,6 +289,23 @@ public class ChapterService {
                 .chapterId(chapter != null ? chapter.getChapterId() : null)
                 .build());
 
+        assert chapter != null;
+        if (chapter.getSeries() != null && chapter.getSeries().getCreator() != null) {
+          Long mangakaId = chapter.getSeries().getCreator().getUserId();
+          String seriesTitle = chapter.getSeries().getTitle();
+          if (approved) {
+              notificationService.send(mangakaId, "REVIEW",
+                  "✅ Nhóm trang được duyệt",
+                  "Tantou đã duyệt nhóm trang " + deadline.getPageFrom() + "–" + deadline.getPageTo()
+                  + " trong Ch." + chapter.getChapterNumber() + " – " + seriesTitle);
+          } else {
+              notificationService.send(mangakaId, "REVIEW",
+                  "✏️ Yêu cầu chỉnh sửa trang",
+                  "Tantou yêu cầu chỉnh sửa nhóm trang " + deadline.getPageFrom() + "–" + deadline.getPageTo()
+                  + " trong Ch." + chapter.getChapterNumber() + " – " + seriesTitle);
+          }
+      }
+
         return toDeadlineRes(deadline);
     }
 
@@ -351,6 +369,15 @@ public class ChapterService {
                 .seriesId(series != null ? series.getSeriesId() : null)
                 .chapterId(chapterId)
                 .build());
+
+        if (chapter.getSeries() != null && chapter.getSeries().getEditor() != null) {
+          Long tantouId = chapter.getSeries().getEditor().getUserId();
+          notificationService.send(tantouId, "REVIEW",
+              "📬 Chapter chờ duyệt Admin",
+              "Ch." + chapter.getChapterNumber()
+              + (chapter.getTitle() != null ? " – " + chapter.getTitle() : "")
+              + " | " + chapter.getSeries().getTitle() + " đã được gửi lên Admin.");
+      }
 
         return toResWithSeries(chapter);
     }
